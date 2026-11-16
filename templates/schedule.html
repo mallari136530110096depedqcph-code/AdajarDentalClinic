@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-banner"><p class="eyebrow">YOUR BOOKINGS</p><h1>My Schedule</h1><p>Review your upcoming dental appointments.</p></section>
+<section class="section">
+  {% if appointments %}
+    <div class="appointment-list">
+    {% for item in appointments %}
+      <article class="appointment-card">
+        <div><p class="eyebrow">{{ item.status }}</p><h3>{{ item.procedure }}</h3><p>{{ item.appointment_date }} · {{ item.time_slot.replace('-', ' – ') }}</p></div>
+        {% if item.appointment_date >= today if today is defined else true %}
+        <form method="post" action="{{ url_for('cancel_appointment', appointment_id=item.id) }}" onsubmit="return confirm('Cancel this appointment?')"><button class="btn btn-light" type="submit">Cancel</button></form>
+        {% endif %}
+      </article>
+    {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state"><h2>No appointments yet</h2><p>Your bookings will be listed here.</p><a class="btn" href="{{ url_for('appointment') }}">Book now</a></div>
+  {% endif %}
+</section>
+{% endblock %}

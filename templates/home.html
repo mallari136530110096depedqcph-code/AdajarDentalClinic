@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero">
+  <div class="hero-content">
+    <p class="eyebrow">YOUR SMILE, OUR PRIORITY</p>
+    <h1>Comfortable care.<br><em>Confident smiles.</em></h1>
+    <p>Friendly dental care and a simple way to request your next clinic appointment.</p>
+    <a class="btn" href="{{ url_for('appointment') }}">Book an appointment</a>
+  </div>
+</section>
+<section class="intro section">
+  <p class="eyebrow">ADAJAR DENTAL SERVICES</p>
+  <h2>Care that puts you first</h2>
+  <p>We provide clear explanations, attentive service, and a warm, comfortable clinic experience.</p>
+  <a class="text-link" href="{{ url_for('about') }}">Learn more about us →</a>
+</section>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="page-banner"><p class="eyebrow">PLAN YOUR VISIT</p><h1>Book an Appointment</h1><p>Choose your preferred date, time, and dental procedure.</p></section>
+<section class="section">
+  <form class="form-card booking-card" method="post" id="appointment-form">
+    <label for="date">Appointment date</label>
+    <input id="date" name="date" type="date" min="{{ today }}" required>
+    <label for="time_slot">Available time</label>
+    <select id="time_slot" name="time_slot" required>
+      <option value="">Select a date first</option>
+      {% for slot in time_slots %}<option value="{{ slot }}">{{ slot.replace('-', ' – ') }}</option>{% endfor %}
+    </select>
+    <p class="help-text" id="availability-message">Select a date to check availability.</p>
+    <label for="procedure">Type of procedure</label>
+    <select id="procedure" name="procedure" required>
+      <option value="">Select a procedure</option>
+      {% for category, items in procedures.items() %}
+        <optgroup label="{{ category }}">
+          {% for item in items %}<option value="{{ item }}">{{ item }}</option>{% endfor %}
+        </optgroup>
+      {% endfor %}
+    </select>
+    <button class="btn full" type="submit">Confirm appointment</button>
+    <p class="help-text">Your booking will appear in the Schedule page after it is saved.</p>
+  </form>
+</section>
+{% endblock %}
+{% block scripts %}
+<script>
+const dateInput = document.getElementById("date");
+const slotSelect = document.getElementById("time_slot");
+const availabilityMessage = document.getElementById("availability-message");
+const originalSlots = Array.from(slotSelect.options).slice(1).map(o => ({value:o.value, text:o.textContent}));
+async function updateAvailability() {
+  if (!dateInput.value) return;
+  slotSelect.innerHTML = '<option value="">Loading available times...</option>';
+  try {
+    const response = await fetch(`{{ url_for('availability') }}?date=${encodeURIComponent(dateInput.value)}`);
+    const data = await response.json();
+    const booked = data.booked || [];
+    slotSelect.innerHTML = "";
+    let available = 0;
+    slotSelect.add(new Option("Select a time", ""));
+    originalSlots.forEach(slot => {
+      const isBooked = booked.includes(slot.value);
+      const option = new Option(isBooked ? `${slot.text} — Booked` : slot.text, slot.value);
+      option.disabled = isBooked;
+      slotSelect.add(option);
+      if (!isBooked) available++;
+    });
+    availabilityMessage.textContent = available ? `${available} time slot(s) available.` : "No time slots are available for this date.";
+  } catch (error) {
+    slotSelect.innerHTML = '<option value="">Unable to load availability</option>';
+    availabilityMessage.textContent = "Please refresh the page and try again.";
+  }
+}
+dateInput.addEventListener("change", updateAvailability);
+</script>
+{% endblock %}
